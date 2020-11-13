@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+  <meta
+    name="viewport"
+    content="width = device-width, initial-scale=1.0, user-scalable=no"
+  />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+    integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+    crossorigin="anonymous"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.css"
+    integrity="sha512-SZgE3m1he0aEF3tIxxnz/3mXu/u/wlMNxQSnE0Cni9j/O8Gs+TjM9tm1NX34nRQ7GiLwUEzwuE3Wv2FLz2667w=="
+    crossorigin="anonymous"
+  />
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.js"
+    integrity="sha512-tCkLWlSXiiMsUaDl5+8bqwpGXXh0zZsgzX6pB9IQCZH+8iwXRYfcCpdxl/owoM6U4ap7QZDW4kw7djQUiQ4G2A=="
+    crossorigin="anonymous"
+  ></script>
+  <style>
+    html,
+    body {
+      overflow-x: hidden;
+      max-width: 900px;
+    }
+
+    #addBeanArea {
+      display: flex;
+      flex-direction: row;
+    }
+    #addBeanArea #beanType {
+      width: 85%;
+    }
+    #addBeanArea #addBeanButton {
+      width: 15%;
+    }
+  </style>
+  <body>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item" aria-current="page">
+          <a href="/">Roasts</a>
+        </li>
+        <li id="roastName" class="breadcrumb-item active" aria-current="page">
+          Roast
+        </li>
+      </ol>
+    </nav>
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Ingredients</h4>
+      </div>
+      <div id="addBeanArea">
+        <input
+          type="text"
+          class="form-control"
+          aria-label="Bean Name"
+          aria-describedby="basic-addon1"
+          id="beanType"
+          placeholder="Bean name"
+        /><button
+          type="button"
+          id="addBeanButton"
+          class="btn btn-primary"
+          onclick="addBeanType()"
+        >
+          Add Beans
+        </button>
+      </div>
+      <div class="card-body" style="padding: 0px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Bean Type</th>
+              <th scope="col"></th>
+              <th scope="col">Weight in Gram</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody id="beans">
+            <tr></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Roast Events</h4>
+      </div>
+      <div class="card-body" style="padding: 0px">
+        <table id="eventsTable" class="table">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">Type</th>
+              <th scope="col"></th>
+              <th scope="col">Value</th>
+            </tr>
+          </thead>
+          <tbody id="appendEvent">
+            <tr></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <div
+          class="btn-toolbar"
+          role="toolbar"
+          aria-label="Toolbar with button groups"
+        >
+          <div
+            class="btn-group mr-2"
+            id="newEvent"
+            role="group"
+            aria-label="First group"
+          >
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("setting")'
+            >
+              SETTING
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("reading")'
+            >
+              READING
+            </button>
+          </div>
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("fill")'
+            >
+              FILL
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("browning")'
+            >
+              BROWNING
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("crack")'
+            >
+              CRACK
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick='addNewEvent("drop")'
+            >
+              DROP
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var roastID;
+    var url = window.location.href;
+    var url_parts = url.replace(/\/\s*$/, "").split("/");
+    roastID = url_parts[url_parts.length - 1];
+
+    var slider;
+    var timestampOfRoast;
+    var roastData;
+    var beansData;
+    var obj = { beanType: [] };
+
+    dateOptions = {
+      day: "numeric",
+      month: "long",
+    };
+
+    function roastTime(timestamp) {
+      m = new Intl.DateTimeFormat("en-UK", dateOptions).format(timestamp);
+      return m + " " + timestampToString(timestamp);
+    }
+
+    function timestampToString(timestamp) {
+      return (
+        timestamp.getHours() +
+        ":" +
+        timestamp.getMinutes() +
+        ":" +
+        timestamp.getSeconds()
+      );
+    }
+
+    $(document).ready(function () {
+      timestampOfRoast = roastID;
+      document.getElementById("roastName").innerHTML += roastTime(
+        new Date(parseInt(timestampOfRoast))
+      );
+      var url = "/roasts/" + roastID;
+
+      $.get(url, function (data, status) {
+        roastData = JSON.stringify(data);
+
+        if (data["beans"]) {
+          for (var i = 0; i < data["beans"].length; i++) {
+            addBeanDOM(data["beans"][i]["name"], data["beans"][i]["amount"]);
+          }
+        }
+
+        if (data["events"]) {
+          for (var i = 0; i < data["events"].length; i++) {
+            addEventDom(
+              data["events"][i]["type"],
+              data["events"][i]["timestamp"],
+              data["events"][i]["value"]
+            );
+          }
+        }
+
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("eventsTable");
+        switching = true;
+        while (switching) {
+          switching = false;
+          rows = table.rows;
+          for (i = 2; i < rows.length - 1; i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[0];
+            y = rows[i + 1].getElementsByTagName("TD")[0];
+            if (x.id > y.id) {
+              shouldSwitch = true;
+              break;
+            }
+          }
+          if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+          }
+        }
+      });
+
+      $("#addBeanButton").attr("disabled", true);
+      $("#beanType").keyup(function () {
+        if ($(this).val().length != 0)
+          $("#addBeanButton").attr("disabled", false);
+        else $("#addBeanButton").attr("disabled", true);
+      });
+    });
+
+    function addBeanDOM(name, value) {
+      var button = $(
+        `<button type="button" class="${name} btn btn-primary" onclick="deleteBean(this)">Delete Bean Variety</button>`
+      );
+      sliderValue = value;
+      slider = $(
+        `<input type="range" min="100" max="500" step="10" class="custom-range" value="${sliderValue}" class="${name}" id='beanAmount'
+        onchange="addBeanAmount(${name}, this.value)" oninput="$('#${name}').text(this.value)"/>`
+      );
+      sliderValue = value;
+      var beanRow = $("#beans").append(
+        $("<tr/>", { id: "row" + name }).append(
+          $("<td/>").text(name),
+          $("<td/>").append(slider),
+          $("<td/>", { id: name }).text(sliderValue),
+          $("<td/>").append(button)
+        )
+      );
+    }
+
+    function addBeanAmount(name, value) {
+      $.ajax({
+        url: "/roasts/" + timestampOfRoast + "/blends/" + name.id,
+        type: "PATCH",
+        data: JSON.stringify({
+          newAmount: parseInt(value),
+        }),
+      });
+    }
+
+    function addEventDom(name, time, value) {
+      var sliderValue = value;
+      if (name === "setting" || name === "reading") {
+        slider = $(
+          `<input type="range" min="0" max="250" step="5" class="custom-range" value="${sliderValue}" class="${name}" id='${time}'"
+    onchange="addEventAmount(${time}, this.value)" oninput="$('#time${time}').text(this.value)"/>`
+        );
+        sliderValue = value;
+      } else {
+        slider = "";
+        sliderValue = "";
+      }
+      var row = $("#appendEvent").append(
+        $("<tr/>").append(
+          $("<td/>", { id: time }).text(timestampToString(new Date(time))),
+          $("<td/>").text(name),
+          $("<td/>").append(slider),
+          $("<td/>", { id: "time" + time, class: name }).text(sliderValue)
+        )
+      );
+    }
+
+    // When clicking add bean show the field and post the value
+    function addBeanType() {
+      var bt = document.getElementById("beanType").value;
+      var ba = 100;
+      addBeanDOM(bt, ba);
+
+      $.post(
+        "/roasts/" + timestampOfRoast + "/blends",
+        JSON.stringify({ name: bt, amount: parseInt(ba) })
+      );
+    }
+
+    // Clicking delete bean, delete on back end and remove field
+    function deleteBean(x) {
+      var n = x.className;
+      x2 = n.substring(0, n.length - 16);
+
+      $.ajax({
+        url: "/roasts/" + timestampOfRoast + "/blends/" + x2,
+        type: "DELETE",
+        contentType: "application/json",
+      });
+      elem = document.getElementById("row" + x2);
+      elem.remove();
+    }
+
+    // On click add a new event
+    function addNewEvent(eventName) {
+      var eTimestamp = Date.now();
+      var measured = addEventDom(eventName, eTimestamp, 0);
+
+      // Post the new event to the server
+      $.post(
+        "/roasts/" + timestampOfRoast + "/events",
+        JSON.stringify({
+          id: eTimestamp,
+          timestamp: eTimestamp,
+          type: eventName,
+          value: 0,
+        })
+      );
+    }
+
+    // Modify the amount of an event
+    function addEventAmount(field, eventValue) {
+      var x = document.getElementById("time" + field);
+      x.innerHTML = eventValue;
+      $.ajax({
+        url: "/roasts/" + timestampOfRoast + "/events/" + field,
+        type: "PUT",
+        data: JSON.stringify({
+          id: parseInt(field),
+          timestamp: parseInt(field),
+          type: String(x.className),
+          value: parseInt(eventValue),
+        }),
+      });
+    }
+  </script>
+</html>
