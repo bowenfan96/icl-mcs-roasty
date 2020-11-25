@@ -18,6 +18,7 @@ private:
   int amount;
 
 public:
+  Ingredient();
   Ingredient(Bean bean, int amount);
   Ingredient(const Ingredient& copy);
   Ingredient& operator=(const Ingredient& copy);
@@ -33,11 +34,12 @@ public:
 class Event {
 private:
   std::string type;
-  int timestamp;
+  long timestamp;
   int eventValue;
 
 public:
-  Event(std::string, int, int*);
+  Event();
+  Event(std::string, long, int*);
   int getTimestamp();
 
 };
@@ -46,20 +48,20 @@ public:
 class Roast {
 private:
   int id;
-  int timestamp;
+  long timestamp;
 
   Ingredient* ingredients = new Ingredient[1];
   int max_ingredients;
   int num_ingredients;
 
-  Event* events;
+  Event* events = new Event[1];
   int max_events;
   int num_events;
 
 
 public:
 
-  Roast(int, int);
+  Roast(int, long);
   Roast(Roast const& copy);
   ~Roast();
 
@@ -77,6 +79,6 @@ public:
   int getEventCount();
 
   // Roast Remove Functions
-  void removeEventByTimestamp(int);
+  void removeEventByTimestamp(long);
   void removeIngredientByBeanName(std::string);
 };
