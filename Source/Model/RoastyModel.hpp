@@ -1,82 +1,100 @@
 #pragma once
 #include <string>
 
+class Roast;
 class Bean {
 private:
   std::string name;
-public:
-  Bean(std::string& Name);
-  std::string& getName();
+  Roast* inRoast = nullptr;
 
-  Bean& operator=(const Bean& copy);
+public:
+  Bean(std::string name);
+
+  std::string getName() const;
+
+  Bean& operator=(std::string const& name);
 
 };
 
+
 class Ingredient {
 private:
-  Bean* bean;
+  Bean& bean;
+
   int amount;
 
 public:
-  Ingredient();
-  Ingredient(Bean bean, int amount);
-  Ingredient(const Ingredient& copy);
-  Ingredient& operator=(const Ingredient& copy);
-  Ingredient(Ingredient&& source);
+  Ingredient* next = nullptr;
 
-  ~Ingredient();
+  Ingredient(Bean& bean, int amount);
 
-  Bean getBean(std::string);
-  int getAmount();
 
+  Bean getBean() const;
+  int getAmount() const;
+
+};
+
+
+struct EventValue {
+  int value;
+  int getValue();
+
+  EventValue(int value);
 };
 
 class Event {
 private:
   std::string type;
   long timestamp;
-  int eventValue;
+  EventValue* eventValue = nullptr;
 
 public:
-  Event();
-  Event(std::string, long, int*);
-  int getTimestamp();
+  Event* next = nullptr;
+
+  Event(std::string type, long timestamp, EventValue* eventValue);
+  Event(std::string type, long timestamp);
+
+  long getTimestamp() const;
+  std::string getType() const;
+  bool hasValue() const;
+
+  EventValue* getValue() const;
 
 };
 
 
 class Roast {
 private:
-  int id;
+  long id;
   long timestamp;
 
-  Ingredient* ingredients = new Ingredient[1];
-  int max_ingredients;
+  Ingredient* ingredients = nullptr;
+
   int num_ingredients;
 
-  Event* events = new Event[1];
-  int max_events;
+  Event* events = nullptr;
   int num_events;
 
 
 public:
 
-  Roast(int, long);
-  Roast(Roast const& copy);
+  Roast(long id, long timestamp);
+
   ~Roast();
 
   // Roast Add Functions
-  void addIngredient(Ingredient);
-  void addEvent(Event);
+  void addIngredient(Ingredient ingd);
+  void addEvent(Event evnt);
 
   // Roast Get Functions
-  int getId();
-  int getTimestamp();
+  long getId() const;
+  long getTimestamp() const;
 
-  Ingredient getIngredient(int);
-  Event getEvent(int);
-  int getIngredientsCount();
-  int getEventCount();
+  int getIngredientsCount() const;
+  int getEventCount() const;
+
+  Ingredient getIngredient(int index) const;
+  Event getEvent(int index) const;
 
   // Roast Remove Functions
   void removeEventByTimestamp(long);
