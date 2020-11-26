@@ -116,7 +116,7 @@ int Roast::getEventCount() const {
   return num_events;
 }
 
-Ingredient Roast::getIngredient(int index) const {
+Ingredient& Roast::getIngredient(int index) const {
   Ingredient* iterator = ingredients;
   int counter = 0;
   while(iterator->next != nullptr) {
@@ -128,7 +128,7 @@ Ingredient Roast::getIngredient(int index) const {
   }
 }
 
-Event Roast::getEvent(int index) const {
+Event& Roast::getEvent(int index) const {
   Event* iterator = events;
   int counter = 0;
   while(iterator->next != nullptr) {

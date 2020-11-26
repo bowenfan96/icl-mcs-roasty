@@ -93,8 +93,8 @@ public:
   int getIngredientsCount() const;
   int getEventCount() const;
 
-  Ingredient getIngredient(int index) const;
-  Event getEvent(int index) const;
+  Ingredient& getIngredient(int index) const;
+  Event& getEvent(int index) const;
 
   // Roast Remove Functions
   void removeEventByTimestamp(long);
