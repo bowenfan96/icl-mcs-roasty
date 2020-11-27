@@ -6,11 +6,14 @@ private:
   std::string name;
 
 public:
-  Bean(std::string name);
+  Bean(std::string name);       // normal constructor
+
+  Bean(Bean const &bean);       // copy constructor (rule of 3)
+  Bean& operator=(Bean const& bean);   // copy assignment (rule of 3)
 
   std::string getName() const;
 
-  Bean& operator=(std::string const& name);
+
 
 };
 
@@ -24,20 +27,27 @@ private:
 public:
   Ingredient* next = nullptr;
 
-  Ingredient(Bean& bean, int amount);
+  Ingredient(Bean& bean, int amount);   // normal constructor
+  Ingredient(Ingredient const &ingd);               // copy constructor
+  Ingredient& operator=(Ingredient const& ingd);    // assignment
+           // destructor
 
 
   Bean getBean() const;
   int getAmount() const;
+
 
 };
 
 
 struct EventValue {
   int value;
-  int getValue();
+  int getValue() const;
 
-  EventValue(int value);
+  EventValue(int value);              // normal constructor
+  EventValue(EventValue const &evntVal);    // copy constructor
+  EventValue& operator=(EventValue const& evntVal);   // assignment
+
 };
 
 class Event {
@@ -51,6 +61,12 @@ public:
 
   Event(std::string type, long timestamp, EventValue* eventValue);
   Event(std::string type, long timestamp);
+
+  Event(Event const& evnt);          // copy constructor
+  Event& operator=(Event const& evnt);    // assignment
+
+  ~Event();
+
 
   long getTimestamp() const;
   std::string getType() const;
@@ -67,7 +83,6 @@ private:
   long timestamp;
 
   Ingredient* ingredients = nullptr;
-
   int num_ingredients;
 
   Event* events = nullptr;
@@ -76,7 +91,9 @@ private:
 
 public:
 
-  Roast(long id, long timestamp);
+  Roast(long id, long timestamp);   // normal constructor
+  Roast(Roast const& rst);          // copy constructor
+  Roast& operator=(Roast const& rst);   // assignment
 
   ~Roast();
 
