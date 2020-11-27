@@ -1,4 +1,5 @@
 #include "RoastyModel.hpp"
+#include <iostream>
 
 // ================ BEAN ===================
 Bean::Bean(std::string name) : name(name) {}
@@ -43,16 +44,27 @@ int EventValue::getValue() {
 // ================ EVENT ==================
 Event::Event(std::string type, long timestamp, EventValue* eventValue)
     : type(type), timestamp(timestamp) {
+
+  std::cout << "Hi imma event got init-ed" << std::endl;
+
   this->eventValue = eventValue;
 }
 
 Event::Event(std::string type, long timestamp)
-    : type(type), timestamp(timestamp) {}
+    : type(type), timestamp(timestamp) {
+
+  std::cout << "Hi imma event with no value inited" << std::endl;
+
+}
 
 
 long Event::getTimestamp() const {
+  std::cout << "heres ur timestamp" << std::endl;
+  std::cout << timestamp << std::endl;
   return timestamp;
 }
+
+
 std::string Event::getType() const {
   return type;
 }
@@ -66,7 +78,11 @@ EventValue* Event::getValue() const {
 }
 
 // ============== ROAST ===================
-Roast::Roast(long id, long timestamp) : id(id), timestamp(timestamp) {}
+Roast::Roast(long id, long timestamp) : id(id), timestamp(timestamp) {
+
+  std::cout << "Roast created" << std::endl;
+
+}
 
 
 // ADD
@@ -85,7 +101,9 @@ void Roast::addIngredient(Ingredient ingd) {
 }
 
 void Roast::addEvent(Event evnt) {
+  std::cout << "Hi Imma add event" << std::endl;
   if(events == nullptr) {
+    std::cout << "No event so making one" << std::endl;
     events = new Event(evnt);
   }
   else {
@@ -95,6 +113,7 @@ void Roast::addEvent(Event evnt) {
     }
     iterator->next = new Event(evnt);
   }
+  std::cout << "Event added" << std::endl;
   num_events++;
 }
 
@@ -117,26 +136,32 @@ int Roast::getEventCount() const {
 }
 
 Ingredient& Roast::getIngredient(int index) const {
-  Ingredient* iterator = ingredients;
-  int counter = 0;
-  while(iterator->next != nullptr) {
-    if(counter == index) {
-      return *iterator;
+  if(ingredients != nullptr) {
+    Ingredient* iterator = ingredients;
+    int counter = 0;
+    while(iterator != nullptr) {
+      if(counter == index) {
+        return *iterator;
+      }
+      counter++;
+      iterator = iterator->next;
     }
-    counter++;
-    iterator = iterator->next;
   }
 }
 
 Event& Roast::getEvent(int index) const {
-  Event* iterator = events;
-  int counter = 0;
-  while(iterator->next != nullptr) {
-    if(counter == index) {
-      return *iterator;
+  std::cout << "Someone wants to getEvent at index: " << index << std::endl;
+  if(events != nullptr) {
+    Event* iterator = events;
+    int counter = 0;
+    while(iterator != nullptr) {
+      if(counter == index) {
+        std::cout << "Event returned" << std::endl;
+        return *iterator;
+      }
+      counter++;
+      iterator = iterator->next;
     }
-    counter++;
-    iterator = iterator->next;
   }
 }
 

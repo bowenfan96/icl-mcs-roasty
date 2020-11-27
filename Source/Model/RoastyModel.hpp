@@ -1,11 +1,9 @@
 #pragma once
 #include <string>
 
-class Roast;
 class Bean {
 private:
   std::string name;
-  Roast* inRoast = nullptr;
 
 public:
   Bean(std::string name);
