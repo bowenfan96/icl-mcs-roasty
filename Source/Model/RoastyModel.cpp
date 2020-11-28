@@ -84,9 +84,14 @@ Event::Event(Event const& evnt) : type(evnt.type),
 }
 
 Event& Event::operator=(const Event& evnt) {
+  // delete previous eventValue
+
+  delete this->eventValue;
+
+
   this->type = evnt.type;
   this->timestamp = evnt.timestamp;
-  this->eventValue = evnt.eventValue;
+  this->eventValue = new EventValue(*evnt.eventValue);
   this->next = evnt.next;
   return *this;
 }
@@ -95,6 +100,7 @@ Event& Event::operator=(const Event& evnt) {
 Event::~Event() {
   //std::cout<<"event destructor called" << std::endl;
   delete eventValue;
+  //std::cout << "BAM" << std::endl;
   //std::cout << "event destroyed" << std::endl;
 }
 
@@ -141,15 +147,17 @@ Roast::Roast(const Roast& rst)
   }
 
   else {
-    events = new Event(*rst.events);
-    std::cout << "Event created" << std::endl;
-    Event* currentEvnt = events;
+    this->events = new Event(*rst.events);
+    ev_count++;
+    //std::cout << "Event created" << std::endl;
+    Event* currentEvnt = this->events;
     Event* nextEvnt = rst.events->next;
     while(nextEvnt != nullptr) {
       currentEvnt->next = new Event(*nextEvnt);
-      std::cout << "Event created" << std::endl;
+      ev_count++;
+      //std::cout << "Event created" << std::endl;
       currentEvnt = currentEvnt->next;
-      nextEvnt = currentEvnt->next;
+      nextEvnt = nextEvnt->next;
     }
   }
 
@@ -158,15 +166,17 @@ Roast::Roast(const Roast& rst)
   }
 
   else {
-    ingredients = new Ingredient(*rst.ingredients);
-    std::cout << "Ingredient created" << std::endl;
-    Ingredient* currentIngd = ingredients;
+    this->ingredients = new Ingredient(*rst.ingredients);
+    ig_count++;
+    //std::cout << "Ingredient created" << std::endl;
+    Ingredient* currentIngd = this->ingredients;
     Ingredient* nextIngd = rst.ingredients->next;
     while(nextIngd != nullptr) {
       currentIngd->next = new Ingredient(*nextIngd);
-      std::cout << "Ingredient created" << std::endl;
+      ig_count++;
+      //std::cout << "Ingredient created" << std::endl;
       currentIngd = currentIngd->next;
-      nextIngd = currentIngd->next;
+      nextIngd = nextIngd->next;
     }
   }
 }
@@ -177,21 +187,47 @@ Roast& Roast::operator=(const Roast& rst) {
   this->num_ingredients = rst.num_ingredients;
   this->num_events = rst.num_events;
 
+  // delete all events in this first
+  Event* delCurEvnt = this->events;
+  while(delCurEvnt != nullptr) {
+    Event* delNexEvnt = delCurEvnt->next;
+    delete delCurEvnt;
+    ev_del_count++;
+    //std::cout << "Event deleted" << std::endl;
+    delCurEvnt = delNexEvnt;
+  }
+
   if(rst.events == nullptr) {
     this->events = nullptr;
   }
 
   else {
+
+
+
     this->events = new Event(*rst.events);
-    std::cout << "Event created" << std::endl;
+    ev_count++;
+    //std::cout << "Event created" << std::endl;
     Event* currentEvnt = this->events;
     Event* nextEvnt = rst.events->next;
     while(nextEvnt != nullptr) {
       currentEvnt->next = new Event(*nextEvnt);
-      std::cout << "Event created" << std::endl;
+      ev_count++;
+      //std::cout << "Event created" << std::endl;
       currentEvnt = currentEvnt->next;
-      nextEvnt = currentEvnt->next;
+      nextEvnt = nextEvnt->next;
     }
+  }
+
+
+  // delete all ingredients in this first
+  Ingredient* delCurIngd = this->ingredients;
+  while(delCurIngd != nullptr) {
+    Ingredient* delNexIngd = delCurIngd->next;
+    delete delCurIngd;
+    ig_del_count++;
+    //std::cout << "Ingredient deleted" << std::endl;
+    delCurIngd = delNexIngd;
   }
 
   if(rst.ingredients == nullptr) {
@@ -199,15 +235,21 @@ Roast& Roast::operator=(const Roast& rst) {
   }
 
   else {
+
+
+
+
     this->ingredients = new Ingredient(*rst.ingredients);
-    std::cout << "Ingredient created" << std::endl;
+    ig_count++;
+    //std::cout << "Ingredient created" << std::endl;
     Ingredient* currentIngd = this->ingredients;
     Ingredient* nextIngd = rst.ingredients->next;
     while(nextIngd != nullptr) {
       currentIngd->next = new Ingredient(*nextIngd);
-      std::cout << "Ingredient created" << std::endl;
+      ig_count++;
+      //std::cout << "Ingredient created" << std::endl;
       currentIngd = currentIngd->next;
-      nextIngd = currentIngd->next;
+      nextIngd = nextIngd->next;
     }
   }
 
@@ -226,7 +268,8 @@ Roast& Roast::operator=(const Roast& rst) {
 void Roast::addIngredient(Ingredient ingd) {
   if(ingredients == nullptr) {
     ingredients = new Ingredient(ingd);
-    std::cout << "Ingredient created" << std::endl;
+    ig_count++;
+    //std::cout << "Ingredient created" << std::endl;
   }
   else {
     Ingredient* iterator = ingredients;
@@ -234,7 +277,8 @@ void Roast::addIngredient(Ingredient ingd) {
       iterator = iterator->next;
     }
     iterator->next = new Ingredient(ingd);
-    std::cout << "Ingredient created" << std::endl;
+    ig_count++;
+    //std::cout << "Ingredient created" << std::endl;
   }
   num_ingredients++;
 }
@@ -244,7 +288,8 @@ void Roast::addEvent(Event evnt) {
   if(events == nullptr) {
     //std::cout << "No event so making one" << std::endl;
     events = new Event(evnt);
-    std::cout << "Event created" << std::endl;
+    ev_count++;
+    //std::cout << "Event created" << std::endl;
   }
   else {
     //std::cout << "adding to event list" << std::endl;
@@ -253,7 +298,8 @@ void Roast::addEvent(Event evnt) {
       current_node = current_node->next;
     }
     current_node->next = new Event(evnt);
-    std::cout << "Event created" << std::endl;
+    ev_count++;
+    //std::cout << "Event created" << std::endl;
   }
   //std::cout << "Event added" << std::endl;
   num_events++;
@@ -323,7 +369,8 @@ void Roast::removeEventByTimestamp(long timestamp) {
         Event* old = (*iterator);
         (*iterator) = (*iterator)->next;
         delete old;
-        std::cout << "Event deleted" << std::endl;
+        ev_del_count++;
+        //std::cout << "Event deleted" << std::endl;
         num_events--;
         return;
       }
@@ -343,7 +390,8 @@ void Roast::removeIngredientByBeanName(std::string beanName) {
         Ingredient* old = (*iterator);
         (*iterator) = (*iterator)->next;
         delete old;
-        std::cout << "Ingredient deleted" << std::endl;
+        ig_del_count++;
+        //std::cout << "Ingredient deleted" << std::endl;
         num_ingredients--;
         //std::cout << "ingredient removed: " << beanName << std::endl;
 
@@ -363,19 +411,29 @@ Roast::~Roast() {
   while(currentEvnt != nullptr) {
     Event* nextEvnt = currentEvnt->next;
     delete currentEvnt;
-    std::cout << "Event deleted" << std::endl;
+    //std::cout << "BOOM" << std::endl;
+    ev_del_count++;
+    //std::cout << "Event deleted" << std::endl;
     currentEvnt = nextEvnt;
   }
-  delete currentEvnt;
 
   Ingredient* currentIngd = ingredients;
   while(currentIngd != nullptr) {
     Ingredient* nextIngd = currentIngd->next;
     delete currentIngd;
-    std::cout << "Ingredient deleted" << std::endl;
+    ig_del_count++;
+    //std::cout << "Ingredient deleted" << std::endl;
     currentIngd = nextIngd;
   }
-  delete currentIngd;
 
+  std::cout << "Ig Count: " << ig_count << std::endl;
+  std::cout << "Ev Count: " << ev_count << std::endl;
+  std::cout << "Ig Del Count: " << ig_del_count << std::endl;
+  std::cout << "Ev Del Count: " << ev_del_count << std::endl;
+  std::cout << "Num ig: " << num_ingredients << std::endl;
+  std::cout << "Num ev: " << num_events << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
+  std::cout << std::endl;
   //std::cout << "roast destroyed" << std::endl;
 }

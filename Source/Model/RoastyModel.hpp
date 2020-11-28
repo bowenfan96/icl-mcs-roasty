@@ -114,4 +114,10 @@ public:
   // Roast Remove Functions
   void removeEventByTimestamp(long);
   void removeIngredientByBeanName(std::string);
+
+  int ev_count = 0;
+  int ig_count = 0;
+
+  int ev_del_count = 0;
+  int ig_del_count = 0;
 };
