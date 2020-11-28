@@ -308,7 +308,7 @@ void Roast::removeEventByTimestamp(long timestamp) {
     Event** iterator = &events;
     while((*iterator) != nullptr) {
       if((*iterator)->getTimestamp() == timestamp) {
-        auto old = (*iterator);
+        Event* old = (*iterator);
         (*iterator) = (*iterator)->next;
         delete old;
         num_events--;
@@ -327,7 +327,7 @@ void Roast::removeIngredientByBeanName(std::string beanName) {
     Ingredient** iterator = &ingredients;
     while((*iterator) != nullptr) {
       if((*iterator)->getBean().getName() == beanName) {
-        auto old = (*iterator);
+        Ingredient* old = (*iterator);
         (*iterator) = (*iterator)->next;
         delete old;
         num_ingredients--;
