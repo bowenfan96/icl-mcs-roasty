@@ -20,7 +20,7 @@ public:
 
 class Ingredient {
 private:
-  Bean& bean;
+  Bean bean;
 
   int amount;
 
