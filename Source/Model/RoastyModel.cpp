@@ -351,6 +351,7 @@ Roast::~Roast() {
     delete currentEvnt;
     currentEvnt = nextEvnt;
   }
+  delete events;
 
   Ingredient* currentIngd = ingredients;
   while(currentIngd != nullptr) {
@@ -358,6 +359,8 @@ Roast::~Roast() {
     delete currentIngd;
     currentIngd = nextIngd;
   }
+  delete ingredients;
+
   //std::cout << "roast destroyed" << std::endl;
 }
 
