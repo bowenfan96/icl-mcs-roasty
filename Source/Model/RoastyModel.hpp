@@ -11,6 +11,9 @@ public:
   Bean(Bean const &bean);       // copy constructor (rule of 3)
   Bean& operator=(Bean const& bean);   // copy assignment (rule of 3)
 
+  Bean(Bean&& bean);
+  Bean& operator=(Bean&& bean);
+
   std::string getName() const;
 
 
@@ -30,7 +33,7 @@ public:
   Ingredient(Bean& bean, int amount);   // normal constructor
   Ingredient(Ingredient const &ingd);               // copy constructor
   Ingredient& operator=(Ingredient const& ingd);    // assignment
-           // destructor
+  //~Ingredient();   // destructor
 
 
   Bean getBean() const;
@@ -64,6 +67,7 @@ public:
 
   Event(Event const& evnt);          // copy constructor
   Event& operator=(Event const& evnt);    // assignment
+  Event(Event&& evnt);
   ~Event();
 
 
@@ -97,7 +101,7 @@ public:
   ~Roast();
 
   // Roast Add Functions
-  void addIngredient(const Ingredient& ingd);
+  void addIngredient(Ingredient const& ingd);
   void addEvent(const Event& evnt);
 
   // Roast Get Functions

@@ -4,26 +4,48 @@
 // ================ BEAN ===================
 Bean::Bean(std::string name) : name(name) {}
 
-Bean::Bean(const Bean& bean) : name(bean.name) {}
+Bean::Bean(const Bean& bean) : name(bean.name) {
+
+}
 
 Bean& Bean::operator=(Bean const& bean) {
+  if(&bean == this) {
+    return *this;
+  }
   this->name = bean.name;
   return *this;
 }
+
+Bean::Bean(Bean&& bean) : name(bean.name) {}
+
+Bean& Bean::operator=(Bean&& bean) {
+  if(&bean == this) {
+    return *this;
+  }
+  this->name = bean.name;
+  return*this;
+}
+
 
 std::string Bean::getName() const {
   return name;
 }
 
-
 // =============== INGREDIENT ===============
-Ingredient::Ingredient(Bean& bean, int amount) : bean(bean), amount(amount) {}
+Ingredient::Ingredient(Bean& bean, int amount) : bean(bean), amount(amount) {
+  delete &bean;
+}
 
 Ingredient::Ingredient(Ingredient const &ingd) : bean(ingd.bean),
                                                  amount(ingd.amount),
-                                                 next(ingd.next) {}
+                                                 next(ingd.next) {
+
+}
 
 Ingredient& Ingredient::operator=(const Ingredient& ingd) {
+  if(&ingd == this) {
+    return *this;
+  }
   delete next;
 
   this->bean = ingd.bean;
@@ -31,6 +53,7 @@ Ingredient& Ingredient::operator=(const Ingredient& ingd) {
   this->next = ingd.next;
   return *this;
 }
+
 
 
 Bean Ingredient::getBean() const {
@@ -49,6 +72,9 @@ EventValue::EventValue(int value) : value(value) {}
 EventValue::EventValue(EventValue const &evntVal) : value(evntVal.value) {}
 
 EventValue& EventValue::operator=(const EventValue& evntVal) {
+  if(&evntVal == this) {
+    return *this;
+  }
   this->value = evntVal.value;
   return *this;
 }
@@ -61,20 +87,13 @@ int EventValue::getValue() const {
 // ================ EVENT ==================
 Event::Event(std::string type, long timestamp, EventValue* eventValue)
     : type(type), timestamp(timestamp) {
-
-  //std::cout << "Hi imma event got init-ed" << std::endl;
-
   this->eventValue = new EventValue(*eventValue);
-  //std::cout << "event type: " << type << std::endl;
+  delete eventValue;
 }
 
 Event::Event(std::string type, long timestamp)
     : type(type), timestamp(timestamp) {
-
-  //std::cout << "Hi imma event with no value inited" << std::endl;
-  //std::cout << "event type: " << type << std::endl;
 }
-
 
 Event::Event(Event const& evnt) : type(evnt.type),
                                   timestamp(evnt.timestamp),
@@ -82,15 +101,16 @@ Event::Event(Event const& evnt) : type(evnt.type),
   if(evnt.eventValue != nullptr) {
     this->eventValue = new EventValue(*evnt.eventValue);
   }
-  //std::cout << "event type: " << type << std::endl;
 }
 
 Event& Event::operator=(const Event& evnt) {
+  if(&evnt == this) {
+    return *this;
+  }
   // delete previous eventValue
 
   delete this->eventValue;
   delete next;
-
 
   this->type = evnt.type;
   this->timestamp = evnt.timestamp;
@@ -103,7 +123,14 @@ Event& Event::operator=(const Event& evnt) {
   return *this;
 }
 
-
+Event::Event(Event&& evnt) : type(evnt.type),
+                             timestamp(evnt.timestamp),
+                             next(evnt.next) {
+  if(evnt.eventValue != nullptr) {
+    this->eventValue = new EventValue(*evnt.eventValue);
+  }
+  delete &evnt;
+}
 
 
 Event::~Event() {
@@ -190,6 +217,9 @@ Roast::Roast(const Roast& rst)
 }
 
 Roast& Roast::operator=(const Roast& rst) {
+  if(&rst == this) {
+    return *this;
+  }
   this->id = rst.id;
   this->timestamp = rst.timestamp;
   this->num_ingredients = rst.num_ingredients;
@@ -289,6 +319,8 @@ void Roast::addIngredient(Ingredient const& ingd) {
     //std::cout << "Ingredient created" << std::endl;
   }
   num_ingredients++;
+
+  delete &ingd;
 }
 
 void Roast::addEvent(Event const& evnt) {
@@ -311,6 +343,8 @@ void Roast::addEvent(Event const& evnt) {
   }
   //std::cout << "Event added" << std::endl;
   num_events++;
+
+  delete &evnt;
 }
 
 // GET
