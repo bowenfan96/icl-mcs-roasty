@@ -64,7 +64,6 @@ public:
 
   Event(Event const& evnt);          // copy constructor
   Event& operator=(Event const& evnt);    // assignment
-
   ~Event();
 
 
@@ -98,8 +97,8 @@ public:
   ~Roast();
 
   // Roast Add Functions
-  void addIngredient(Ingredient ingd);
-  void addEvent(Event evnt);
+  void addIngredient(const Ingredient& ingd);
+  void addEvent(const Event& evnt);
 
   // Roast Get Functions
   long getId() const;

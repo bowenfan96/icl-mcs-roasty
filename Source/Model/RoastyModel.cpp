@@ -24,6 +24,8 @@ Ingredient::Ingredient(Ingredient const &ingd) : bean(ingd.bean),
                                                  next(ingd.next) {}
 
 Ingredient& Ingredient::operator=(const Ingredient& ingd) {
+  delete next;
+
   this->bean = ingd.bean;
   this->amount = ingd.amount;
   this->next = ingd.next;
@@ -87,14 +89,21 @@ Event& Event::operator=(const Event& evnt) {
   // delete previous eventValue
 
   delete this->eventValue;
+  delete next;
 
 
   this->type = evnt.type;
   this->timestamp = evnt.timestamp;
-  this->eventValue = new EventValue(*evnt.eventValue);
+
+  if(evnt.eventValue != nullptr) {
+    this->eventValue = new EventValue(*evnt.eventValue);
+  }
+
   this->next = evnt.next;
   return *this;
 }
+
+
 
 
 Event::~Event() {
@@ -126,7 +135,6 @@ bool Event::hasValue() const {
 EventValue* Event::getValue() const {
   return eventValue;
 }
-
 
 
 // ============== ROAST ===================
@@ -265,7 +273,7 @@ Roast& Roast::operator=(const Roast& rst) {
 
 
 // ADD
-void Roast::addIngredient(Ingredient ingd) {
+void Roast::addIngredient(Ingredient const& ingd) {
   if(ingredients == nullptr) {
     ingredients = new Ingredient(ingd);
     ig_count++;
@@ -283,7 +291,7 @@ void Roast::addIngredient(Ingredient ingd) {
   num_ingredients++;
 }
 
-void Roast::addEvent(Event evnt) {
+void Roast::addEvent(Event const& evnt) {
   //std::cout << "Hi Imma add event" << std::endl;
   if(events == nullptr) {
     //std::cout << "No event so making one" << std::endl;
