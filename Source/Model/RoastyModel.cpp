@@ -1,162 +1,120 @@
 #include "RoastyModel.hpp"
 #include <iostream>
 
-// ================ BEAN ===================
-Bean::Bean(std::string name) : name(name) {}
 
-Bean::Bean(const Bean& bean) : name(bean.name) {
+/* =============== BEAN =============== */
+Bean::Bean(std::string argName) : name(argName) {}          // normal constructor
 
-}
+Bean::Bean(Bean const& argBean) : name(argBean.name) {}     // copy constructor
 
-Bean& Bean::operator=(Bean const& bean) {
-  if(&bean == this) {
+Bean& Bean::operator=(Bean const& argBean) {                // copy assignment
+  if(&argBean == this) {         // self-assignment guard
     return *this;
   }
-  this->name = bean.name;
+  name = argBean.name;
   return *this;
 }
 
-Bean::Bean(Bean&& bean) : name(bean.name) {}
-
-Bean& Bean::operator=(Bean&& bean) {
-  if(&bean == this) {
-    return *this;
-  }
-  this->name = bean.name;
-  return*this;
-}
-
-
-std::string Bean::getName() const {
+std::string Bean::getName() const {       // returns name of the bean
   return name;
 }
 
-// =============== INGREDIENT ===============
-Ingredient::Ingredient(Bean& bean, int amount) : bean(bean), amount(amount) {
-  delete &bean;
+
+/* =============== INGREDIENT =============== */
+Ingredient::Ingredient(Bean& argBean, int argAmount)                  // normal constructor
+    : bean(argBean), amount(argAmount) {
+  delete &argBean;
 }
 
-Ingredient::Ingredient(Ingredient const &ingd) : bean(ingd.bean),
-                                                 amount(ingd.amount),
-                                                 next(ingd.next) {
+Ingredient::Ingredient(Ingredient const &argIngd)                     // copy constructor
+    : bean(argIngd.bean), amount(argIngd.amount), next(argIngd.next) {}
 
-}
-
-Ingredient& Ingredient::operator=(const Ingredient& ingd) {
-  if(&ingd == this) {
+Ingredient& Ingredient::operator=(const Ingredient& argIngd) {        // copy assignment
+  if(&argIngd == this) {        // self-assignment guard
     return *this;
   }
-  delete next;
 
-  this->bean = ingd.bean;
-  this->amount = ingd.amount;
-  this->next = ingd.next;
+  bean = argIngd.bean;
+  amount = argIngd.amount;
+  next = argIngd.next;
   return *this;
 }
 
-
-
-Bean Ingredient::getBean() const {
+Bean Ingredient::getBean() const {      // returns bean object in ingredient
   return bean;
 }
 
-int Ingredient::getAmount() const {
+int Ingredient::getAmount() const {     // returns number of beans in ingredient
   return amount;
 }
 
 
-// =========== EVENT VALUE =================
+/* =============== EVENT VALUE =============== */
+EventValue::EventValue(int argValue) : value(argValue) {}             // normal constructor
 
-EventValue::EventValue(int value) : value(value) {}
+EventValue::EventValue(EventValue const& argEvntVal)                  // copy constructor
+    : value(argEvntVal.value) {}
 
-EventValue::EventValue(EventValue const &evntVal) : value(evntVal.value) {}
-
-EventValue& EventValue::operator=(const EventValue& evntVal) {
-  if(&evntVal == this) {
+EventValue& EventValue::operator=(EventValue const& argEvntVal) {     // copy assignment
+  if(&argEvntVal == this) {     // self-assignment guard
     return *this;
   }
-  this->value = evntVal.value;
+  value = argEvntVal.value;
   return *this;
 }
 
-int EventValue::getValue() const {
+int EventValue::getValue() const {      // returns integral value of the EventValue object
   return value;
 }
 
 
-// ================ EVENT ==================
-Event::Event(std::string type, long timestamp, EventValue* eventValue)
-    : type(type), timestamp(timestamp) {
-  this->eventValue = new EventValue(*eventValue);
-  delete eventValue;
+/* =============== EVENT =============== */
+// constructor with eventValue object:
+Event::Event(std::string argType, long argTimestamp, EventValue* ptrEventValue)
+    : type(argType), timestamp(argTimestamp) {
+  eventValue = new EventValue(*ptrEventValue);
+  delete ptrEventValue;
 }
 
-Event::Event(std::string type, long timestamp)
-    : type(type), timestamp(timestamp) {
-}
+Event::Event(std::string argType, long argTimestamp)    // constructor with no eventValue object
+    : type(argType), timestamp(argTimestamp) {}
 
-Event::Event(Event const& evnt) : type(evnt.type),
-                                  timestamp(evnt.timestamp),
-                                  next(evnt.next) {
-  if(evnt.eventValue != nullptr) {
-    this->eventValue = new EventValue(*evnt.eventValue);
+Event::Event(Event const& argEvnt)                      // copy constructor
+    : type(argEvnt.type), timestamp(argEvnt.timestamp), next(argEvnt.next) {
+  if(argEvnt.eventValue != nullptr) {         // check if eventValue exists - if yes, copy it
+    eventValue = new EventValue(*argEvnt.eventValue);
   }
 }
 
-Event& Event::operator=(const Event& evnt) {
-  if(&evnt == this) {
+Event& Event::operator=(Event const& argEvnt) {
+  if(&argEvnt == this) {      // self-assignment guard
     return *this;
   }
-  // delete previous eventValue
+  delete eventValue;          // free eventValue object held by event
 
-  delete this->eventValue;
-  delete next;
-
-  this->type = evnt.type;
-  this->timestamp = evnt.timestamp;
-
-  if(evnt.eventValue != nullptr) {
-    this->eventValue = new EventValue(*evnt.eventValue);
+  type = argEvnt.type;
+  timestamp = argEvnt.timestamp;
+  if(argEvnt.eventValue != nullptr) {         // check if eventValue exists - if yes, copy it
+    eventValue = new EventValue(*argEvnt.eventValue);
   }
-
-  this->next = evnt.next;
+  next = argEvnt.next;
   return *this;
 }
 
-Event::Event(Event&& evnt) : type(evnt.type),
-                             timestamp(evnt.timestamp),
-                             next(evnt.next) {
-  if(evnt.eventValue != nullptr) {
-    this->eventValue = new EventValue(*evnt.eventValue);
-  }
-  delete &evnt;
-}
-
-
-Event::~Event() {
-  //std::cout<<"event destructor called" << std::endl;
+Event::~Event() {     // destructor to free up eventValue object held within event
   delete eventValue;
-  //std::cout << "BAM" << std::endl;
-  //std::cout << "event destroyed" << std::endl;
 }
-
-
-
-
-
 
 long Event::getTimestamp() const {
-  //std::cout << "heres ur timestamp" << std::endl;
   return timestamp;
 }
-
 
 std::string Event::getType() const {
   return type;
 }
 
-bool Event::hasValue() const {
-  return eventValue != nullptr;
+bool Event::hasValue() const {      // returns true if event has eventValue object
+  return (eventValue != nullptr);
 }
 
 EventValue* Event::getValue() const {
@@ -164,191 +122,157 @@ EventValue* Event::getValue() const {
 }
 
 
-// ============== ROAST ===================
-Roast::Roast(long id, long timestamp) : id(id), timestamp(timestamp) {
+/* =============== ROAST =============== */
+Roast::Roast(long argId, long argTimestamp)       // roast constructor
+    : id(argId), timestamp(argTimestamp) {
   num_ingredients = 0;
   num_events = 0;
-
-  //std::cout << "Roast created" << std::endl;
 }
 
-Roast::Roast(const Roast& rst)
-    : id(rst.id), timestamp(rst.timestamp),
-      num_ingredients(rst.num_ingredients),
-      num_events(rst.num_events) {
+Roast::Roast(Roast const& argRst)                 // roast deep copy constructor
+    : id(argRst.id), timestamp(argRst.timestamp),
+      num_ingredients(argRst.num_ingredients),
+      num_events(argRst.num_events) {
 
-  if(rst.events == nullptr) {
-    events = nullptr;
-  }
+  // deep copy of the events linked list until the end of list is reached
+  // nothing to copy if RHS events list ptr is null, as LHS ptr already inited to null
+  if(argRst.events != nullptr) {
+    events = new Event(*argRst.events);             // copy first element
+    Event* evntIterLHS = events;
+    Event* evntIterRHS = argRst.events->next;
 
-  else {
-    this->events = new Event(*rst.events);
-    ev_count++;
-    //std::cout << "Event created" << std::endl;
-    Event* currentEvnt = this->events;
-    Event* nextEvnt = rst.events->next;
-    while(nextEvnt != nullptr) {
-      currentEvnt->next = new Event(*nextEvnt);
-      ev_count++;
-      //std::cout << "Event created" << std::endl;
-      currentEvnt = currentEvnt->next;
-      nextEvnt = nextEvnt->next;
+    while(evntIterRHS != nullptr) {                 // chase RHS list down until all copied to LHS
+      evntIterLHS->next = new Event(*evntIterRHS);
+      evntIterLHS = evntIterLHS->next;
+      evntIterRHS = evntIterRHS->next;
     }
   }
 
-  if(rst.ingredients == nullptr) {
-    ingredients = nullptr;
-  }
+  // deep copy of the ingredients linked list until the end of list is reached
+  // nothing to copy if RHS ingredients list ptr is null, as LHS ptr already inited to null
+  if(argRst.ingredients != nullptr) {
+    ingredients = new Ingredient(*argRst.ingredients);
+    Ingredient* ingdIterLHS = ingredients;
+    Ingredient* ingdIterRHS = argRst.ingredients->next;
 
-  else {
-    this->ingredients = new Ingredient(*rst.ingredients);
-    ig_count++;
-    //std::cout << "Ingredient created" << std::endl;
-    Ingredient* currentIngd = this->ingredients;
-    Ingredient* nextIngd = rst.ingredients->next;
-    while(nextIngd != nullptr) {
-      currentIngd->next = new Ingredient(*nextIngd);
-      ig_count++;
-      //std::cout << "Ingredient created" << std::endl;
-      currentIngd = currentIngd->next;
-      nextIngd = nextIngd->next;
+    while(ingdIterRHS != nullptr) {
+      ingdIterLHS->next = new Ingredient(*ingdIterRHS);
+      ingdIterLHS = ingdIterLHS->next;
+      ingdIterRHS = ingdIterRHS->next;
     }
   }
 }
 
-Roast& Roast::operator=(const Roast& rst) {
-  if(&rst == this) {
+Roast& Roast::operator=(const Roast& argRst) {    // roast copy assignment operator
+  if(&argRst == this) {      // self-assignment guard
     return *this;
   }
-  this->id = rst.id;
-  this->timestamp = rst.timestamp;
-  this->num_ingredients = rst.num_ingredients;
-  this->num_events = rst.num_events;
 
-  // delete all events in this first
-  Event* delCurEvnt = this->events;
-  while(delCurEvnt != nullptr) {
-    Event* delNexEvnt = delCurEvnt->next;
-    delete delCurEvnt;
-    ev_del_count++;
-    //std::cout << "Event deleted" << std::endl;
-    delCurEvnt = delNexEvnt;
+  id = argRst.id;
+  timestamp = argRst.timestamp;
+  num_ingredients = argRst.num_ingredients;
+  num_events = argRst.num_events;
+
+  // destroy and free memory of the LHS events and ingredient linked lists, else memory will leak
+  Event* delCurrEvnt = events;
+  while(delCurrEvnt != nullptr) {    // chase the event list down and delete every LHS element
+    Event* delNextEvnt = delCurrEvnt->next;
+    delete delCurrEvnt;
+    delCurrEvnt = delNextEvnt;
   }
+  events = nullptr;
 
-  if(rst.events == nullptr) {
-    this->events = nullptr;
+  Ingredient* delCurrIngd = ingredients;
+  while(delCurrIngd != nullptr) {    // chase the ingredient list down and delete every LHS element
+    Ingredient* delNextIngd = delCurrIngd->next;
+    delete delCurrIngd;
+    delCurrIngd = delNextIngd;
   }
+  ingredients = nullptr;
 
-  else {
+  // now that LHS linked lists are deep destroyed, we can proceed to deep copy from RHS
+  // deep copy of the events linked list until the end of list is reached
+  // nothing to copy if RHS events list ptr is null, as LHS ptr already inited to null
+  if(argRst.events != nullptr) {
+    events = new Event(*argRst.events);             // copy first element
+    Event* evntIterLHS = events;
+    Event* evntIterRHS = argRst.events->next;
 
-
-
-    this->events = new Event(*rst.events);
-    ev_count++;
-    //std::cout << "Event created" << std::endl;
-    Event* currentEvnt = this->events;
-    Event* nextEvnt = rst.events->next;
-    while(nextEvnt != nullptr) {
-      currentEvnt->next = new Event(*nextEvnt);
-      ev_count++;
-      //std::cout << "Event created" << std::endl;
-      currentEvnt = currentEvnt->next;
-      nextEvnt = nextEvnt->next;
+    while(evntIterRHS != nullptr) {                 // chase RHS list down until all copied to LHS
+      evntIterLHS->next = new Event(*evntIterRHS);
+      evntIterLHS = evntIterLHS->next;
+      evntIterRHS = evntIterRHS->next;
     }
   }
 
+  // deep copy of the ingredients linked list until the end of list is reached
+  // nothing to copy if RHS ingredients list ptr is null, as LHS ptr already inited to null
+  if(argRst.ingredients != nullptr) {
+    ingredients = new Ingredient(*argRst.ingredients);
+    Ingredient* ingdIterLHS = ingredients;
+    Ingredient* ingdIterRHS = argRst.ingredients->next;
 
-  // delete all ingredients in this first
-  Ingredient* delCurIngd = this->ingredients;
-  while(delCurIngd != nullptr) {
-    Ingredient* delNexIngd = delCurIngd->next;
-    delete delCurIngd;
-    ig_del_count++;
-    //std::cout << "Ingredient deleted" << std::endl;
-    delCurIngd = delNexIngd;
-  }
-
-  if(rst.ingredients == nullptr) {
-    this->ingredients = nullptr;
-  }
-
-  else {
-
-
-
-
-    this->ingredients = new Ingredient(*rst.ingredients);
-    ig_count++;
-    //std::cout << "Ingredient created" << std::endl;
-    Ingredient* currentIngd = this->ingredients;
-    Ingredient* nextIngd = rst.ingredients->next;
-    while(nextIngd != nullptr) {
-      currentIngd->next = new Ingredient(*nextIngd);
-      ig_count++;
-      //std::cout << "Ingredient created" << std::endl;
-      currentIngd = currentIngd->next;
-      nextIngd = nextIngd->next;
+    while(ingdIterRHS != nullptr) {
+      ingdIterLHS->next = new Ingredient(*ingdIterRHS);
+      ingdIterLHS = ingdIterLHS->next;
+      ingdIterRHS = ingdIterRHS->next;
     }
   }
-
   return *this;
 }
 
-
-
-
-
-
-
-
-
-// ADD
-void Roast::addIngredient(Ingredient const& ingd) {
-  if(ingredients == nullptr) {
-    ingredients = new Ingredient(ingd);
-    ig_count++;
-    //std::cout << "Ingredient created" << std::endl;
+Roast::~Roast() {   // roast deep destructor
+  Event* delCurrEvnt = events;
+  while(delCurrEvnt != nullptr) {
+    Event* delNextEvnt = delCurrEvnt->next;
+    delete delCurrEvnt;
+    delCurrEvnt = delNextEvnt;
   }
-  else {
-    Ingredient* iterator = ingredients;
-    while(iterator->next != nullptr) {
-      iterator = iterator->next;
+
+  Ingredient* delCurrIngd = ingredients;
+  while(delCurrIngd != nullptr) {
+    Ingredient* delNextIngd = delCurrIngd->next;
+    delete delCurrIngd;
+    delCurrIngd = delNextIngd;
+  }
+}
+
+// roast add functions
+void Roast::addIngredient(Ingredient const& argIngd) {    // add a ingredient by reference
+  if(ingredients == nullptr) {    // add ingredient at head node if list is empty
+    ingredients = new Ingredient(argIngd);
+  }
+  else {    // chase the linked list down and new a ingredient to end to the list
+    Ingredient* ingdIter = ingredients;
+    while(ingdIter->next != nullptr) {
+      ingdIter = ingdIter->next;
     }
-    iterator->next = new Ingredient(ingd);
-    ig_count++;
-    //std::cout << "Ingredient created" << std::endl;
+    ingdIter->next = new Ingredient(argIngd);
   }
   num_ingredients++;
 
-  delete &ingd;
+  // it is our responsibility to clean up argIngd passed into the function, else memory will leak
+  delete &argIngd;
 }
 
-void Roast::addEvent(Event const& evnt) {
-  //std::cout << "Hi Imma add event" << std::endl;
-  if(events == nullptr) {
-    //std::cout << "No event so making one" << std::endl;
-    events = new Event(evnt);
-    ev_count++;
-    //std::cout << "Event created" << std::endl;
+void Roast::addEvent(Event const& argEvnt) {    // add an event by reference
+  if(events == nullptr) {     // at event at head node if list is empty
+    events = new Event(argEvnt);
   }
-  else {
-    //std::cout << "adding to event list" << std::endl;
-    Event* current_node = events;
-    while(current_node->next != nullptr) {
-      current_node = current_node->next;
+  else {    // chase the linked list down and new an event to end to the list
+    Event* evntIter = events;
+    while(evntIter->next != nullptr) {
+      evntIter = evntIter->next;
     }
-    current_node->next = new Event(evnt);
-    ev_count++;
-    //std::cout << "Event created" << std::endl;
+    evntIter->next = new Event(argEvnt);
   }
-  //std::cout << "Event added" << std::endl;
   num_events++;
 
-  delete &evnt;
+  // it is our responsibility to clean up argEvnt passed into the function, else memory will leak
+  delete &argEvnt;
 }
 
-// GET
-
+// roast get functions
 long Roast::getId() const {
   return id;
 }
@@ -365,117 +289,73 @@ int Roast::getEventCount() const {
   return num_events;
 }
 
-Ingredient& Roast::getIngredient(int index) const {
-  if(index >= num_ingredients) {
-    exit(-1);
-  }
+Ingredient& Roast::getIngredient(int index) const {   // get ingredient by linked list index
   if(ingredients != nullptr) {
-    Ingredient* iterator = ingredients;
-    int counter = 0;
-    while(iterator != nullptr) {
+    Ingredient* ingdIter = ingredients;
+    int counter = 0;    // count how many elements we have chased down, until we hit the index
+    while(ingdIter != nullptr) {
       if(counter == index) {
-        return *iterator;
+        return *ingdIter;
       }
       counter++;
-      iterator = iterator->next;
+      ingdIter = ingdIter->next;
     }
   }
+  // if we reach here, the index given is invalid and we have nothing to return, call it quits
+  throw INVALID_INDEX;
 }
 
-Event& Roast::getEvent(int index) const {
-  //std::cout << "Someone wants to getEvent at index: " << index << std::endl;
+Event& Roast::getEvent(int index) const {     // get event by linked list index
   if(events != nullptr) {
-    Event* iterator = events;
-    int counter = 0;
-    while(iterator != nullptr) {
+    Event* evntIter = events;
+    int counter = 0;    // count how many elements we have chased down, until we hit the index
+    while(evntIter != nullptr) {
       if(counter == index) {
-        //std::cout << "Event returned" << std::endl;
-        return *iterator;
+        return *evntIter;
       }
       counter++;
-      iterator = iterator->next;
+      evntIter = evntIter->next;
     }
   }
+  // if we reach here, the index given is invalid and we have nothing to return, call it quits
+  throw INVALID_INDEX;
 }
 
-// REMOVE
-
-void Roast::removeEventByTimestamp(long timestamp) {
-  if(events == nullptr) {
+// Roast remove functions
+void Roast::removeEventByTimestamp(long const& argTimestamp) {
+  if(events == nullptr) {     // nothing to remove if events list contains nothing
     return;
   }
-  else {
-    Event** iterator = &events;
-    while((*iterator) != nullptr) {
-      if((*iterator)->getTimestamp() == timestamp) {
-        Event* old = (*iterator);
-        (*iterator) = (*iterator)->next;
-        delete old;
-        ev_del_count++;
-        //std::cout << "Event deleted" << std::endl;
-        num_events--;
-        return;
-      }
-      iterator = &((*iterator)->next);
+
+  Event** evntIter = &events;
+  while(*evntIter != nullptr) {
+    if((*evntIter)->getTimestamp() == argTimestamp) {
+      Event* toRemove = *evntIter;
+      *evntIter = (*evntIter)->next;
+      delete toRemove;
+
+      num_events--;
+      return;
     }
+    evntIter = &((*evntIter)->next);
   }
 }
 
-void Roast::removeIngredientByBeanName(std::string beanName) {
-  if(ingredients == nullptr) {
+void Roast::removeIngredientByBeanName(std::string const& argBeanName) {
+  if(ingredients == nullptr) {      // nothing to remove if ingredients list contains nothing
     return;
   }
-  else {
-    Ingredient** iterator = &ingredients;
-    while((*iterator) != nullptr) {
-      if((*iterator)->getBean().getName() == beanName) {
-        Ingredient* old = (*iterator);
-        (*iterator) = (*iterator)->next;
-        delete old;
-        ig_del_count++;
-        //std::cout << "Ingredient deleted" << std::endl;
-        num_ingredients--;
-        //std::cout << "ingredient removed: " << beanName << std::endl;
 
-        return;
-      }
-      iterator = &((*iterator)->next);
+  Ingredient** ingdIter = &ingredients;
+  while((*ingdIter) != nullptr) {
+    if((*ingdIter)->getBean().getName() == argBeanName) {
+      Ingredient* toRemove = (*ingdIter);
+      (*ingdIter) = (*ingdIter)->next;
+      delete toRemove;
+
+      num_ingredients--;
+      return;
     }
+    ingdIter = &((*ingdIter)->next);
   }
-}
-
-
-// DESTRUCTOR
-
-Roast::~Roast() {
-  //std::cout << "roast destructor called" << std::endl;
-  Event* currentEvnt = events;
-  while(currentEvnt != nullptr) {
-    Event* nextEvnt = currentEvnt->next;
-    delete currentEvnt;
-    //std::cout << "BOOM" << std::endl;
-    ev_del_count++;
-    //std::cout << "Event deleted" << std::endl;
-    currentEvnt = nextEvnt;
-  }
-
-  Ingredient* currentIngd = ingredients;
-  while(currentIngd != nullptr) {
-    Ingredient* nextIngd = currentIngd->next;
-    delete currentIngd;
-    ig_del_count++;
-    //std::cout << "Ingredient deleted" << std::endl;
-    currentIngd = nextIngd;
-  }
-
-  std::cout << "Ig Count: " << ig_count << std::endl;
-  std::cout << "Ev Count: " << ev_count << std::endl;
-  std::cout << "Ig Del Count: " << ig_del_count << std::endl;
-  std::cout << "Ev Del Count: " << ev_del_count << std::endl;
-  std::cout << "Num ig: " << num_ingredients << std::endl;
-  std::cout << "Num ev: " << num_events << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  //std::cout << "roast destroyed" << std::endl;
 }

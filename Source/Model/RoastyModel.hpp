@@ -1,126 +1,109 @@
 #pragma once
 #include <string>
 
+// error codes
+#define INVALID_INDEX -1
+
+/* =============== BEAN =============== */
 class Bean {
 private:
-  std::string name;
-
+  std::string name;     // bean has just a name
 public:
-  Bean(std::string name);       // normal constructor
-
-  Bean(Bean const &bean);       // copy constructor (rule of 3)
-  Bean& operator=(Bean const& bean);   // copy assignment (rule of 3)
-
-  Bean(Bean&& bean);
-  Bean& operator=(Bean&& bean);
+  Bean(std::string argName);               // normal constructor
+  Bean(Bean const& argBean);               // copy constructor
+  Bean& operator=(Bean const& argBean);    // copy assignment
 
   std::string getName() const;
-
-
-
 };
 
 
+/* =============== INGREDIENT =============== */
 class Ingredient {
 private:
-  Bean bean;
-
-  int amount;
+  Bean bean;      // ingredient contains a bean and,
+  int amount;     // the number of beans as an integer
 
 public:
-  Ingredient* next = nullptr;
+  Ingredient* next = nullptr;       // linked list implementation
 
-  Ingredient(Bean& bean, int amount);   // normal constructor
-  Ingredient(Ingredient const &ingd);               // copy constructor
-  Ingredient& operator=(Ingredient const& ingd);    // assignment
-  //~Ingredient();   // destructor
-
+  Ingredient(Bean& argBean, int argAmount);               // normal constructor
+  Ingredient(Ingredient const& argIngd);                  // copy constructor
+  Ingredient& operator=(Ingredient const& argIngd);       // copy assignment
 
   Bean getBean() const;
   int getAmount() const;
-
-
 };
 
 
-struct EventValue {
-  int value;
+/* =============== EVENT VALUE =============== */
+class EventValue {
+private:
+  int value;      // eventvalue has just an integer value
+public:
+  EventValue(int argValue);                                // normal constructor
+  EventValue(EventValue const& argEvntVal);                // copy constructor
+  EventValue& operator=(EventValue const& argEvntVal);     // copy assignment
+
   int getValue() const;
-
-  EventValue(int value);              // normal constructor
-  EventValue(EventValue const &evntVal);    // copy constructor
-  EventValue& operator=(EventValue const& evntVal);   // assignment
-
 };
 
+
+/* =============== EVENT =============== */
 class Event {
 private:
-  std::string type;
-  long timestamp;
-  EventValue* eventValue = nullptr;
+  std::string type;                   // event has a type,
+  long timestamp;                     // a timestamp, and,
+  EventValue* eventValue = nullptr;   // an optional eventValue object
 
 public:
-  Event* next = nullptr;
+  Event* next = nullptr;      // linked list implementation
+  // constructor with eventValue object:
+  Event(std::string argType, long argTimestamp, EventValue* ptrEventValue);
+  Event(std::string argType, long argTimestamp);      // constructor with no eventValue object
 
-  Event(std::string type, long timestamp, EventValue* eventValue);
-  Event(std::string type, long timestamp);
-
-  Event(Event const& evnt);          // copy constructor
-  Event& operator=(Event const& evnt);    // assignment
-  Event(Event&& evnt);
-  ~Event();
-
+  Event(Event const& argEvnt);               // copy constructor
+  Event& operator=(Event const& argEvnt);    // copy assignment
+  ~Event();                                  // destructor to free contained eventValue object
 
   long getTimestamp() const;
   std::string getType() const;
   bool hasValue() const;
-
   EventValue* getValue() const;
-
 };
 
 
+/* =============== ROAST =============== */
 class Roast {
 private:
   long id;
   long timestamp;
 
-  Ingredient* ingredients = nullptr;
+  Ingredient* ingredients = nullptr;          // head node of the ingredients linked list
   int num_ingredients;
 
   Event* events = nullptr;
-  int num_events;
-
+  int num_events;                             // head node of the events linked list
 
 public:
 
-  Roast(long id, long timestamp);   // normal constructor
-  Roast(Roast const& rst);          // copy constructor
-  Roast& operator=(Roast const& rst);   // assignment
+  Roast(long argId, long argTimestamp);       // normal constructor
+  Roast(Roast const& argRst);                 // deep copy constructor
+  Roast& operator=(Roast const& argRst);      // deep copy assignment
+  ~Roast();                                   // deep destructor
 
-  ~Roast();
+  // roast add functions
+  void addIngredient(Ingredient const& argIngd);
+  void addEvent(Event const& argEvnt);
 
-  // Roast Add Functions
-  void addIngredient(Ingredient const& ingd);
-  void addEvent(const Event& evnt);
-
-  // Roast Get Functions
+  // roast get functions
   long getId() const;
   long getTimestamp() const;
-
   int getIngredientsCount() const;
   int getEventCount() const;
-
   Ingredient& getIngredient(int index) const;
   Event& getEvent(int index) const;
 
-  // Roast Remove Functions
-  void removeEventByTimestamp(long);
-  void removeIngredientByBeanName(std::string);
-
-  int ev_count = 0;
-  int ig_count = 0;
-
-  int ev_del_count = 0;
-  int ig_del_count = 0;
+  // roast remove functions
+  void removeEventByTimestamp(long const& argTimestamp);
+  void removeIngredientByBeanName(std::string const& argBeanName);
 };
