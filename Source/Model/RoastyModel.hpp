@@ -52,9 +52,9 @@ public:
 /* =============== EVENT =============== */
 class Event {
 private:
-  std::string type;                   // event has a type,
-  long timestamp;                     // a timestamp, and,
-  EventValue* eventValue = nullptr;   // an optional eventValue object
+  std::string type;                     // event has a type,
+  long timestamp;                       // a timestamp, and,
+  EventValue* eventValue = nullptr;     // an optional eventValue object
 
 public:
   Event* next = nullptr;      // linked list implementation
