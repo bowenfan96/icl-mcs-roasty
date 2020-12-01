@@ -327,35 +327,50 @@ void Roast::removeEventByTimestamp(long const& argTimestamp) {
     return;
   }
 
-  Event** evntIter = &events;
-  while(*evntIter != nullptr) {
-    if((*evntIter)->getTimestamp() == argTimestamp) {
-      Event* toRemove = *evntIter;
-      *evntIter = (*evntIter)->next;
-      delete toRemove;
-
+  Event* delCurrEvnt = events;      // this is this iterator
+  Event* delPrevEvnt = nullptr;     // this is to help us rejoin the link after deleting a node
+  while(delCurrEvnt != nullptr) {   // iterate through the list and look for value to delete
+    if(delCurrEvnt->getTimestamp() == argTimestamp) {
+      if(delPrevEvnt == nullptr) {  // special case if first element is what we want to delete
+        events = delCurrEvnt->next;
+      }
+      else {
+        delPrevEvnt->next = delCurrEvnt->next;  // rejoin our broken list after deleting node
+      }
+      delete delCurrEvnt;   // delete element, free up memory, decrement events count and return
       num_events--;
       return;
     }
-    evntIter = &((*evntIter)->next);
+    // if we reached here, this isn't the element we're looking for, as Obi-Wan might say
+    // so keep iterating - move along, move along
+    delPrevEvnt = delCurrEvnt;
+    delCurrEvnt = delCurrEvnt->next;
   }
 }
 
+// the logical sequence below is exactly the same as in the removeEventByTimestamp function
+// refer to comments above for procedure explanations
 void Roast::removeIngredientByBeanName(std::string const& argBeanName) {
-  if(ingredients == nullptr) {      // nothing to remove if ingredients list contains nothing
+  if(ingredients == nullptr) {
     return;
   }
 
-  Ingredient** ingdIter = &ingredients;
-  while((*ingdIter) != nullptr) {
-    if((*ingdIter)->getBean().getName() == argBeanName) {
-      Ingredient* toRemove = (*ingdIter);
-      (*ingdIter) = (*ingdIter)->next;
-      delete toRemove;
-
+  Ingredient* delCurrIngd = ingredients;
+  Ingredient* delPrevIngd = nullptr;
+  while(delCurrIngd != nullptr) {
+    if(delCurrIngd->getBean().getName() == argBeanName) {
+      if(delPrevIngd == nullptr) {
+        ingredients = delCurrIngd->next;
+      }
+      else {
+        delPrevIngd->next = delCurrIngd->next;
+      }
+      delete delCurrIngd;
       num_ingredients--;
       return;
     }
-    ingdIter = &((*ingdIter)->next);
+
+    delPrevIngd = delCurrIngd;
+    delCurrIngd = delCurrIngd->next;
   }
 }
