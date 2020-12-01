@@ -3,7 +3,7 @@
 
 
 /* =============== BEAN =============== */
-Bean::Bean(std::string argName) : name(argName) {}          // normal constructor
+Bean::Bean(std::string const& argName) : name(argName) {}   // normal constructor
 
 Bean::Bean(Bean const& argBean) : name(argBean.name) {}     // copy constructor
 
@@ -15,21 +15,21 @@ Bean& Bean::operator=(Bean const& argBean) {                // copy assignment
   return *this;
 }
 
-std::string Bean::getName() const {       // returns name of the bean
+std::string const& Bean::getName() const {       // returns name of the bean
   return name;
 }
 
 
 /* =============== INGREDIENT =============== */
-Ingredient::Ingredient(Bean& argBean, int argAmount)                  // normal constructor
+Ingredient::Ingredient(Bean const& argBean, int argAmount)              // normal constructor
     : bean(argBean), amount(argAmount) {
   delete &argBean;
 }
 
-Ingredient::Ingredient(Ingredient const &argIngd)                     // copy constructor
+Ingredient::Ingredient(Ingredient const& argIngd)                       // copy constructor
     : bean(argIngd.bean), amount(argIngd.amount), next(argIngd.next) {}
 
-Ingredient& Ingredient::operator=(const Ingredient& argIngd) {        // copy assignment
+Ingredient& Ingredient::operator=(Ingredient const& argIngd) {          // copy assignment
   if(&argIngd == this) {        // self-assignment guard
     return *this;
   }
@@ -40,7 +40,7 @@ Ingredient& Ingredient::operator=(const Ingredient& argIngd) {        // copy as
   return *this;
 }
 
-Bean Ingredient::getBean() const {      // returns bean object in ingredient
+Bean const& Ingredient::getBean() const {      // returns bean object in ingredient
   return bean;
 }
 
@@ -69,17 +69,18 @@ int EventValue::getValue() const {      // returns integral value of the EventVa
 
 
 /* =============== EVENT =============== */
-// constructor with eventValue object:
-Event::Event(std::string argType, long argTimestamp, EventValue* ptrEventValue)
+// constructor for event with eventValue object:
+Event::Event(std::string const& argType, long argTimestamp, EventValue* ptrEventValue)
     : type(argType), timestamp(argTimestamp) {
   eventValue = new EventValue(*ptrEventValue);
   delete ptrEventValue;
 }
 
-Event::Event(std::string argType, long argTimestamp)    // constructor with no eventValue object
+// constructor for event with no eventValue object:
+Event::Event(std::string const& argType, long argTimestamp)
     : type(argType), timestamp(argTimestamp) {}
 
-Event::Event(Event const& argEvnt)                      // copy constructor
+Event::Event(Event const& argEvnt)            // copy constructor
     : type(argEvnt.type), timestamp(argEvnt.timestamp), next(argEvnt.next) {
   if(argEvnt.eventValue != nullptr) {         // check if eventValue exists - if yes, copy it
     eventValue = new EventValue(*argEvnt.eventValue);
@@ -109,7 +110,7 @@ long Event::getTimestamp() const {
   return timestamp;
 }
 
-std::string Event::getType() const {
+std::string const& Event::getType() const {
   return type;
 }
 
@@ -163,7 +164,7 @@ Roast::Roast(Roast const& argRst)                 // roast deep copy constructor
   }
 }
 
-Roast& Roast::operator=(const Roast& argRst) {    // roast copy assignment operator
+Roast& Roast::operator=(Roast const& argRst) {    // roast copy assignment operator
   if(&argRst == this) {      // self-assignment guard
     return *this;
   }
@@ -289,7 +290,7 @@ int Roast::getEventCount() const {
   return num_events;
 }
 
-Ingredient& Roast::getIngredient(int index) const {   // get ingredient by linked list index
+Ingredient const& Roast::getIngredient(int index) const {   // get ingredient by linked list index
   if(ingredients != nullptr) {
     Ingredient* ingdIter = ingredients;
     int counter = 0;    // count how many elements we have chased down, until we hit the index
@@ -302,10 +303,11 @@ Ingredient& Roast::getIngredient(int index) const {   // get ingredient by linke
     }
   }
   // if we reach here, the index given is invalid and we have nothing to return, call it quits
+  std::cerr << "Invalid index - " << index << " - for ingredient within roast" << "\n";
   throw INVALID_INDEX;
 }
 
-Event& Roast::getEvent(int index) const {     // get event by linked list index
+Event const& Roast::getEvent(int index) const {     // get event by linked list index
   if(events != nullptr) {
     Event* evntIter = events;
     int counter = 0;    // count how many elements we have chased down, until we hit the index
@@ -318,16 +320,17 @@ Event& Roast::getEvent(int index) const {     // get event by linked list index
     }
   }
   // if we reach here, the index given is invalid and we have nothing to return, call it quits
+  std::cerr << "Invalid index - " << index << " - for event within roast" << "\n";
   throw INVALID_INDEX;
 }
 
 // Roast remove functions
-void Roast::removeEventByTimestamp(long const& argTimestamp) {
+void Roast::removeEventByTimestamp(long argTimestamp) {
   if(events == nullptr) {     // nothing to remove if events list contains nothing
     return;
   }
 
-  Event* delCurrEvnt = events;      // this is this iterator
+  Event* delCurrEvnt = events;      // this is our list iterator
   Event* delPrevEvnt = nullptr;     // this is to help us rejoin the link after deleting a node
   while(delCurrEvnt != nullptr) {   // iterate through the list and look for value to delete
     if(delCurrEvnt->getTimestamp() == argTimestamp) {
@@ -341,7 +344,7 @@ void Roast::removeEventByTimestamp(long const& argTimestamp) {
       num_events--;
       return;
     }
-    // if we reached here, this isn't the element we're looking for, as Obi-Wan might say
+    // if we reached here, this isn't the element we're looking for (as Obi-Wan might say)
     // so keep iterating - move along, move along
     delPrevEvnt = delCurrEvnt;
     delCurrEvnt = delCurrEvnt->next;
